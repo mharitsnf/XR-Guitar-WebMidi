@@ -1,32 +1,42 @@
 const { WebMidi } = require("webmidi")
+const { WebSocketServer } = require("ws")
+const { WebMidiHandler } = require("./midi")
+const express = require("express")
+
+const expressApp = express()
+const expressServer = expressApp.listen(4321, () => {
+    console.log("Express running on 4321")
+})
+
+const wss = new WebSocketServer({ server: expressServer })
 
 
-WebMidi
-    .enable()
-    .then(onEnabled)
-    .catch(err => console.error(err))
+wss.on("connection", async ws => {
 
-function onEnabled() {
-    console.log("Webmidi enabled")
+    ws.send(JSON.stringify({ note: "A4", channel: 1, attack: 0.5 }))
 
-    console.log("Inputs -----")
-    WebMidi.inputs.forEach(input => {
-        console.log(input.name)
-    })
+    let webMidiHandler = new WebMidiHandler()
 
-    // console.log("Outputs -----")
-    // WebMidi.outputs.forEach(output => {
-    //     console.log(output.name)
-    // })
+    let setupRes = await webMidiHandler.setupWebMidi(ws)
+    if (!setupRes) {
+        console.log("WebMidi setup failed!")
+        return
+    }
 
-    const input = WebMidi.getInputByName("Fishman TriplePlay TP Guitar")
-    const output = WebMidi.getOutputByName("Apple DLS Synth")
-    let pitchbends = [0, 0, 0, 0, 0, 0]
+    const input = webMidiHandler.getInput("Fishman TriplePlay TP Guitar")
+    const output = webMidiHandler.getOutput("Apple DLS Synth")
 
     input.addListener("pitchbend", e => {
         const channel = e.message.channel
+        output.channels[channel].sendPitchBend(e.value * 8)
 
-        output.channels[channel].sendPitchBend(e.value * 10)
+        ws.send(JSON.stringify({
+            type: "pitchbend",
+            channel: channel,
+            note: "",
+            attack: 0,
+            pitchValue: e.value * 8,
+        }))
     })
 
     input.addListener("noteon", e => {
@@ -34,11 +44,17 @@ function onEnabled() {
         const note = accidental ? e.note.name + accidental + e.note.octave : e.note.name + e.note.octave
         const _attack = e.note.attack
         const channel = e.message.channel
-
         console.log(e)
 
-
         output.channels[channel].playNote(note, { attack: _attack })
+
+        ws.send(JSON.stringify({
+            type: "noteon",
+            channel: channel,
+            note: note,
+            attack: _attack,
+            pitchValue: 0,
+        }))
     })
 
     input.addListener("noteoff", e => {
@@ -47,24 +63,67 @@ function onEnabled() {
         const channel = e.message.channel
 
         output.channels[channel].stopNote(note)
+
+        ws.send(JSON.stringify({
+            type: "noteoff",
+            channel: channel,
+            note: note,
+            attack: 0,
+            pitchValue: 0,
+        }))
     })
 
+    ws.on("message", (message, isBinary) => {
+        const msg = isBinary ? message : JSON.parse(message.toString())
+        if (!msg) return
 
-}
+        console.log(msg)
 
-function noteOnListener(e) {
-    const accidental = e.note.accidental
-    const note = accidental ? e.note.name + accidental + e.note.octave : e.note.name + e.note.octave
-    const _attack = e.note.attack
-    const channel = e.message.channel
+        // switch (msg.type) {
+        //     default:
+        //         console.log(msg)
+        //         break
+        // }
+    })
 
-    output.channels[channel].playNote(note, { attack: _attack })
-}
+    ws.on("close", () => {
+        input.removeListener()
+        webMidiHandler = null
+    })
+})
 
-function noteOffListener(e) {
-    const accidental = e.note.accidental
-    const note = accidental ? e.note.name + accidental + e.note.octave : e.note.name + e.note.octave
-    const channel = e.message.channel
+// WebMidi
+//     .enable()
+//     .then(onEnabled)
+//     .catch(err => console.error(err))
 
-    output.channels[channel].stopNote(note)
-}
+// function onEnabled() {
+//     console.log("Webmidi enabled")
+
+//     const input = WebMidi.getInputByName("Fishman TriplePlay TP Guitar")
+//     const output = WebMidi.getOutputByName("Apple DLS Synth")
+
+//     input.addListener("pitchbend", e => {
+//         const channel = e.message.channel
+
+//         output.channels[channel].sendPitchBend(e.value * 8)
+//     })
+
+//     input.addListener("noteon", e => {
+//         const accidental = e.note.accidental
+//         const note = accidental ? e.note.name + accidental + e.note.octave : e.note.name + e.note.octave
+//         const _attack = e.note.attack
+//         const channel = e.message.channel
+
+//         console.log(e)
+//         output.channels[channel].playNote(note, { attack: _attack })
+//     })
+
+//     input.addListener("noteoff", e => {
+//         const accidental = e.note.accidental
+//         const note = accidental ? e.note.name + accidental + e.note.octave : e.note.name + e.note.octave
+//         const channel = e.message.channel
+
+//         output.channels[channel].stopNote(note)
+//     })
+// }
