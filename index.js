@@ -4,12 +4,15 @@ const { WebMidiHandler } = require("./midi")
 const express = require("express")
 
 
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
+
+const pitchMultiplier = 8
+
 const expressApp = express()
 const expressServer = expressApp.listen(4321, () => {
     console.log("Express running on 4321")
 })
 
-const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 
 const wss = new WebSocketServer({ server: expressServer })
 
@@ -36,9 +39,9 @@ wss.on("connection", async ws => {
 
         if (channel == 2) {
             bBendingValue = e.value
-            output.channels[channel].sendPitchBend(clamp(bBendingValue * 8, -1, 1))
+            output.channels[channel].sendPitchBend(clamp(bBendingValue * pitchMultiplier, -1, 1))
         } else {
-            output.channels[channel].sendPitchBend(clamp(e.value * 8, -1, 1))
+            output.channels[channel].sendPitchBend(clamp(e.value * pitchMultiplier, -1, 1))
         }
 
 
@@ -92,7 +95,7 @@ wss.on("connection", async ws => {
             case "pitchbend":
                 bBendingValue += msg.pitchValue
                 console.log(msg.pitchValue, "and", bBendingValue)
-                output.channels[msg.channel].sendPitchBend(clamp(bBendingValue * 8, -1, 1))
+                output.channels[msg.channel].sendPitchBend(clamp(bBendingValue * pitchMultiplier, -1, 1))
             default:
                 console.log(msg)
         }
