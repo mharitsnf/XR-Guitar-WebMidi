@@ -9,11 +9,15 @@ class WebMidiHandler {
     async setupWebMidi(ws) {
         try {
             this.ws = ws
-            let enableRes = await WebMidi.enable()
-            return enableRes
+            await WebMidi.enable()
+
+            WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name))
+            WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name))
+
+            return true
         } catch (error) {
             console.error(error)
-            return null
+            return false
         }
     }
 
@@ -24,8 +28,6 @@ class WebMidiHandler {
     getOutput(name) {
         return WebMidi.getOutputByName(name)
     }
-
-
 }
 
 module.exports = {

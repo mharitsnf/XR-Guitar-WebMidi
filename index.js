@@ -3,10 +3,13 @@ const { WebSocketServer } = require("ws")
 const { WebMidiHandler } = require("./midi")
 const express = require("express")
 
+
 const expressApp = express()
 const expressServer = expressApp.listen(4321, () => {
     console.log("Express running on 4321")
 })
+
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 
 const wss = new WebSocketServer({ server: expressServer })
 
@@ -24,11 +27,20 @@ wss.on("connection", async ws => {
     }
 
     const input = webMidiHandler.getInput("Fishman TriplePlay TP Guitar")
-    const output = webMidiHandler.getOutput("Apple DLS Synth")
+    const output = webMidiHandler.getOutput("IAC Driver Bus 1")
+
+    let bBendingValue = 0
 
     input.addListener("pitchbend", e => {
         const channel = e.message.channel
-        output.channels[channel].sendPitchBend(e.value * 8)
+
+        if (channel == 2) {
+            bBendingValue = e.value
+            output.channels[channel].sendPitchBend(clamp(bBendingValue * 8, -1, 1))
+        } else {
+            output.channels[channel].sendPitchBend(clamp(e.value * 8, -1, 1))
+        }
+
 
         ws.send(JSON.stringify({
             type: "pitchbend",
@@ -44,7 +56,6 @@ wss.on("connection", async ws => {
         const note = accidental ? e.note.name + accidental + e.note.octave : e.note.name + e.note.octave
         const _attack = e.note.attack
         const channel = e.message.channel
-        console.log(e)
 
         output.channels[channel].playNote(note, { attack: _attack })
 
@@ -77,13 +88,14 @@ wss.on("connection", async ws => {
         const msg = isBinary ? message : JSON.parse(message.toString())
         if (!msg) return
 
-        console.log(msg)
-
-        // switch (msg.type) {
-        //     default:
-        //         console.log(msg)
-        //         break
-        // }
+        switch (msg.type) {
+            case "pitchbend":
+                bBendingValue += msg.pitchValue
+                console.log(msg.pitchValue, "and", bBendingValue)
+                output.channels[msg.channel].sendPitchBend(clamp(bBendingValue * 8, -1, 1))
+            default:
+                console.log(msg)
+        }
     })
 
     ws.on("close", () => {
@@ -100,8 +112,11 @@ wss.on("connection", async ws => {
 // function onEnabled() {
 //     console.log("Webmidi enabled")
 
+//     // console.log(WebMidi.inputs)
+//     // console.log(WebMidi.outputs)
+
 //     const input = WebMidi.getInputByName("Fishman TriplePlay TP Guitar")
-//     const output = WebMidi.getOutputByName("Apple DLS Synth")
+//     const output = WebMidi.getOutputByName("IAC Driver Bus 1")
 
 //     input.addListener("pitchbend", e => {
 //         const channel = e.message.channel
