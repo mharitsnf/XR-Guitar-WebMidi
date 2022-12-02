@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>B Bender</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <h1 style="margin-top: 8rem;">B-Bender XR Guitar</h1>
+            <p>To start the application, you need to have a Digital Audio Workstation (DAW) that can select your MIDI
+                input and output.</p>
+        </div>
+
+        <h4>Select your MIDI input and output</h4>
+        <form>
+            <div class="row">
+                <div class="six columns">
+                    <label for="midiInput">Input</label>
+                    <select onchange="onInputChange()" class="u-full-width" id="midiInput">
+                        <option selected value="">Select an input</option>
+                    </select>
+                </div>
+                <div class="six columns">
+                    <label for="midiOutput">Output</label>
+                    <select onchange="onOutputChange()" class="u-full-width" id="midiOutput">
+                        <option selected value="">Select an output</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        <script src="./renderer.js"></script>
+</body>
+
+</html>

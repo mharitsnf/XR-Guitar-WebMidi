@@ -115,8 +115,12 @@ wss.on("connection", async ws => {
 // function onEnabled() {
 //     console.log("Webmidi enabled")
 
-//     // console.log(WebMidi.inputs)
-//     // console.log(WebMidi.outputs)
+//     WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name))
+//     console.log("=====")
+//     WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name))
+
+//     console.log(WebMidi.inputs)
+//     console.log(WebMidi.outputs)
 
 //     const input = WebMidi.getInputByName("Fishman TriplePlay TP Guitar")
 //     const output = WebMidi.getOutputByName("IAC Driver Bus 1")
