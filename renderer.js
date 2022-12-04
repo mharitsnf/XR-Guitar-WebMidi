@@ -41,6 +41,9 @@ const onStartServer = async () => {
         ipAddressHtml.removeAttribute("hidden")
         ipAddressHtml.innerHTML = `Server is listening on ${ipAddress}:4322`
 
+        document.getElementById("midiInput").setAttribute("disabled", "")
+        document.getElementById("midiOutput").setAttribute("disabled", "")
+
         document.getElementById("startServerButton").setAttribute("hidden", "")
         document.getElementById("stopServerButton").removeAttribute("hidden")
     } catch (error) {
@@ -52,6 +55,9 @@ const onStopServer = () => {
     websocket.stopWebSocket()
 
     document.getElementById("ipaddress").setAttribute("hidden", "")
+
+    document.getElementById("midiInput").removeAttribute("disabled")
+    document.getElementById("midiOutput").removeAttribute("disabled")
 
     document.getElementById("startServerButton").removeAttribute("hidden")
     document.getElementById("stopServerButton").setAttribute("hidden", "")
