@@ -26,13 +26,35 @@ const initializeWebMidi = async () => {
 const onInputChange = () => {
     const inputSelect = document.getElementById("midiInput")
     selectedMidiInput = inputSelect.value
-    console.log(selectedMidiInput)
 }
 
 const onOutputChange = () => {
     const outputSelect = document.getElementById("midiOutput")
     selectedMidiOutput = outputSelect.value
-    console.log(selectedMidiOutput)
+}
+
+const onStartServer = async () => {
+    try {
+        const ipAddress = await websocket.initWebSocket(selectedMidiInput, selectedMidiOutput)
+
+        const ipAddressHtml = document.getElementById("ipaddress")
+        ipAddressHtml.removeAttribute("hidden")
+        ipAddressHtml.innerHTML = `Server is listening on ${ipAddress}:4322`
+
+        document.getElementById("startServerButton").setAttribute("hidden", "")
+        document.getElementById("stopServerButton").removeAttribute("hidden")
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+const onStopServer = () => {
+    websocket.stopWebSocket()
+
+    document.getElementById("ipaddress").setAttribute("hidden", "")
+
+    document.getElementById("startServerButton").removeAttribute("hidden")
+    document.getElementById("stopServerButton").setAttribute("hidden", "")
 }
 
 initializeWebMidi()

@@ -20,26 +20,30 @@
         <div class="row">
             <h1 style="margin-top: 8rem;">B-Bender XR Guitar</h1>
             <p>To start the application, you need to have a Digital Audio Workstation (DAW) that can select your MIDI
-                input and output.</p>
+                input and output. Set the MIDI output here as the MIDI input in your DAW.</p>
+            <p hidden id="ipaddress"></p>
         </div>
 
         <h4>Select your MIDI input and output</h4>
-        <form>
-            <div class="row">
-                <div class="six columns">
-                    <label for="midiInput">Input</label>
-                    <select onchange="onInputChange()" class="u-full-width" id="midiInput">
-                        <option selected value="">Select an input</option>
-                    </select>
-                </div>
-                <div class="six columns">
-                    <label for="midiOutput">Output</label>
-                    <select onchange="onOutputChange()" class="u-full-width" id="midiOutput">
-                        <option selected value="">Select an output</option>
-                    </select>
-                </div>
+        <div class="row">
+            <div class="six columns">
+                <label for="midiInput">Input</label>
+                <select onchange="onInputChange()" class="u-full-width" id="midiInput">
+                    <option selected value="">Select an input</option>
+                </select>
             </div>
-        </form>
+            <div class="six columns">
+                <label for="midiOutput">Output</label>
+                <select onchange="onOutputChange()" class="u-full-width" id="midiOutput">
+                    <option selected value="">Select an output</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <button class="button-primary" onclick="onStartServer()" id="startServerButton">Start Server</button>
+            <button hidden onclick="onStopServer()" id="stopServerButton">Stop Server</button>
+        </div>
 
         <script src="./renderer.js"></script>
 </body>

@@ -11,8 +11,8 @@ class WebMidiHandler {
             this.ws = ws
             await WebMidi.enable()
 
-            WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name))
-            WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name))
+            // WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name))
+            // WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name))
 
             return true
         } catch (error) {

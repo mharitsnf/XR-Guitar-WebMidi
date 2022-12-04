@@ -19,6 +19,8 @@ const wss = new WebSocketServer({ server: expressServer })
 
 wss.on("connection", async ws => {
 
+    console.log("connected");
+
     ws.send(JSON.stringify({ note: "A4", channel: 1, attack: 0.5 }))
 
     let webMidiHandler = new WebMidiHandler()
@@ -44,13 +46,14 @@ wss.on("connection", async ws => {
             output.channels[channel].sendPitchBend(clamp(e.value * pitchMultiplier, -1, 1))
         }
 
+        console.log(channel, e.value);
 
         ws.send(JSON.stringify({
             type: "pitchbend",
             channel: channel,
             note: "",
             attack: 0,
-            pitchValue: e.value * 8,
+            pitchValue: e.value * pitchMultiplier,
         }))
     })
 
@@ -59,6 +62,8 @@ wss.on("connection", async ws => {
         const note = accidental ? e.note.name + accidental + e.note.octave : e.note.name + e.note.octave
         const _attack = e.note.attack
         const channel = e.message.channel
+
+        console.log(channel)
 
         output.channels[channel].playNote(note, { attack: _attack })
 
@@ -95,7 +100,8 @@ wss.on("connection", async ws => {
             case "pitchbend":
                 bBendingValue += msg.pitchValue
                 console.log(msg.pitchValue, "and", bBendingValue)
-                output.channels[msg.channel].sendPitchBend(clamp(bBendingValue * pitchMultiplier, -1, 1))
+                output.channels[msg.channel].sendPitchBend(clamp(bBendingValue, -1, 1))
+                bBendingValue = 0
             default:
                 console.log(msg)
         }
@@ -118,9 +124,6 @@ wss.on("connection", async ws => {
 //     WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name))
 //     console.log("=====")
 //     WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name))
-
-//     console.log(WebMidi.inputs)
-//     console.log(WebMidi.outputs)
 
 //     const input = WebMidi.getInputByName("Fishman TriplePlay TP Guitar")
 //     const output = WebMidi.getOutputByName("IAC Driver Bus 1")

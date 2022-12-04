@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./src/server/index.js",
+    "dev": "node ./src/server/index.js",
     "start": "set NODE_ENV=development&&electron ."
   },
   "author": "",
