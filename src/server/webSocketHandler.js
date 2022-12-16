@@ -5,7 +5,7 @@ const { networkInterfaces } = require('os');
 class WebSocketHandler {
     constructor() {
         const expressApp = express()
-        this.expressServer = expressApp.listen(4322, () => {})
+        this.expressServer = expressApp.listen(4321, () => {})
         this.wss = new WebSocketServer({ server: this.expressServer })
 
         const nets = networkInterfaces();

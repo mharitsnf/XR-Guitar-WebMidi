@@ -39,7 +39,7 @@ const onStartServer = async () => {
 
         const ipAddressHtml = document.getElementById("ipaddress")
         ipAddressHtml.removeAttribute("hidden")
-        ipAddressHtml.innerHTML = `Server is listening on ${ipAddress}:4322`
+        ipAddressHtml.innerHTML = `Server is listening on ${ipAddress}:4321`
 
         document.getElementById("midiInput").setAttribute("disabled", "")
         document.getElementById("midiOutput").setAttribute("disabled", "")
